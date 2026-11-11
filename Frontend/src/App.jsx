@@ -228,6 +228,15 @@ function App() {
   }, [selectedContactId])
 
   useEffect(() => {
+    if (!profileUser) return undefined
+    function closeOnEscape(event) {
+      if (event.key === 'Escape') setProfileUser(null)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [profileUser])
+
+  useEffect(() => {
     let active = true
     request('/api/auth/me')
       .then(({ user }) => {
@@ -367,6 +376,7 @@ function App() {
       setCurrentUser(null)
       setContacts([])
       setSelectedContact(null)
+      setProfileUser(null)
     } catch (logoutError) {
       setError(logoutError.message)
     }
@@ -392,8 +402,8 @@ function App() {
     <main className="app-shell">
       <aside className="nav-rail">
         <div className="rail-logo"><Icon name="message" size={21} /></div>
-        <div className="rail-divider" />
-        <button aria-label="Messages" className="rail-button rail-button-active" type="button"><Icon name="message" /></button>
+        {/* <div className="rail-divider" />
+        <button aria-label="Messages" className="rail-button rail-button-active" type="button"><Icon name="message" /></button> */}
         <div className="rail-spacer" />
         <button aria-label="Sign out" className="rail-button rail-logout" onClick={signOut} type="button"><Icon name="logout" /></button>
         <button
@@ -599,12 +609,6 @@ function App() {
               <div>
                 <dt>Email</dt>
                 <dd>{profileUser.email}</dd>
-              </div>
-              <div>
-                <dt>Joined</dt>
-                <dd>{profileUser.createdAt
-                  ? new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(new Date(profileUser.createdAt))
-                  : 'Date unavailable'}</dd>
               </div>
             </dl>
           </section>
